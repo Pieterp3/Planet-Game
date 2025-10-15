@@ -1,0 +1,10 @@
+Engine started
+Challenge completed: Pacifist Victory - Reward: 120 coins, 25 score
+Challenge completed: Offensive Master - Reward: 120 coins, 25 score
+Waiting for engine thread to stop...
+Engine stopped
+Engine started
+Waiting for engine thread to stop...
+Engine stopped
+Challenge completed: Unlock Planetary Infection - Reward: 50 coins, 5 score
+Exiting game...

@@ -1,0 +1,17 @@
+Create BotAbilityManager and move bot abilities out of Bot class
+
+add some special features which are unlocked by challenge progress
+add achievements for destorying x ships in combat
+difficulty changes
+	- Easy, friendly ships dont destory each other on collision or with projectiles or explosions after it is added
+	- Medium, explosions damage friendly ships
+	- Hard projectiles and explosions destroy friendly ships but collision doesnt
+	- Hard projectiles and explosions destroy friendly ships but collision doesnt
+add aoe damage to explosions
+Add chance for asteroid shower to fly in from outside the map damaging all planets it comes into contact with
+ - Higher chances on higher difficulties
+Add a Hell difficulty
+Make higher difficulties have smaller planets to account for there being more of them
+ - Reduce growth not minimum size
+Move game constants to a config file and load it on startup
+ - Find more stuff to move into the gameconstants config file
