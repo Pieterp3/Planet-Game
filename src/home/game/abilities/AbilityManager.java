@@ -16,6 +16,7 @@ import home.game.operators.player.Player;
 import home.game.operators.player.PlayerData;
 import home.game.operators.player.UpgradeType;
 import home.game.planets.Planet;
+import home.sounds.Sound;
 
 public class AbilityManager {
     private Game game;
@@ -117,44 +118,47 @@ public class AbilityManager {
         }
         cooldowns.put(type, currentTime + cooldownDuration);
 
+        // Play sound effect for ability activation
+        playAbilitySound(type);
+
         // Activate ability based on type
         switch (type) {
-            case FREEZE:
-                activateFreeze(duration);
-                break;
-            case MISSILE_BARRAGE:
-                activateMissileBarrage(power);
-                break;
-            case SHIELD:
-                activateShield(duration);
-                break;
-            case FACTORY_HYPE:
-                activateFactoryHype(duration);
-                break;
-            case IMPROVED_FACTORIES:
-                activateImprovedFactories(duration);
-                break;
-            case ANSWERED_PRAYERS:
-                activateAnsweredPrayers(power);
-                break;
-            case CURSE:
-                activateCurse(duration, power);
-                break;
-            case BLACK_HOLE:
-                activateBlackHole(duration, power);
-                break;
-            case PLANETARY_FLAME:
-                activatePlanetaryFlame(duration, power);
-                break;
-            case PLANETARY_INFECTION:
-                activatePlanetaryInfection(duration, power);
-                break;
-            case UNSTOPPABLE_SHIPS:
-                activateUnstoppableShips(duration, power);
-                break;
-            case ORBITAL_FREEZE:
-                activateOrbitalFreeze(duration, power);
-                break;
+        case FREEZE:
+            activateFreeze(duration);
+            break;
+        case MISSILE_BARRAGE:
+            activateMissileBarrage(power);
+            break;
+        case SHIELD:
+            activateShield(duration);
+            break;
+        case FACTORY_HYPE:
+            activateFactoryHype(duration);
+            break;
+        case IMPROVED_FACTORIES:
+            activateImprovedFactories(duration);
+            break;
+        case ANSWERED_PRAYERS:
+            activateAnsweredPrayers(power);
+            break;
+        case CURSE:
+            activateCurse(duration, power);
+            break;
+        case BLACK_HOLE:
+            activateBlackHole(duration, power);
+            break;
+        case PLANETARY_FLAME:
+            activatePlanetaryFlame(duration, power);
+            break;
+        case PLANETARY_INFECTION:
+            activatePlanetaryInfection(duration, power);
+            break;
+        case UNSTOPPABLE_SHIPS:
+            activateUnstoppableShips(duration, power);
+            break;
+        case ORBITAL_FREEZE:
+            activateOrbitalFreeze(duration, power);
+            break;
         }
 
         return true;
@@ -188,8 +192,8 @@ public class AbilityManager {
         for (int i = 0; i < missileCount; i++) {
             Planet target = enemyPlanets.get(random.nextInt(enemyPlanets.size()));
             // Create a missile ship that will attack the planet
-            int missileDamage = (int) (GameConstants.getDefaultShipDamage() *
-                    playerData.getUpgradeMultiplier(UpgradeType.SHIP_DAMAGE)
+            int missileDamage = (int) (GameConstants.getDefaultShipDamage()
+                    * playerData.getUpgradeMultiplier(UpgradeType.SHIP_DAMAGE)
                     * GameConstants.getMissileDamageMultiplier());
 
             Ship missile = new Ship(game.getPlayer(), null, target,
@@ -339,8 +343,8 @@ public class AbilityManager {
             // Check for planets in event horizon and damage them
             for (Planet planet : game.getPlanets()) {
                 if (planet.getOperator() instanceof Bot) {
-                    double distance = Math.sqrt(Math.pow(planet.getX() - blackHole.x, 2) +
-                            Math.pow(planet.getY() - blackHole.y, 2));
+                    double distance = Math
+                            .sqrt(Math.pow(planet.getX() - blackHole.x, 2) + Math.pow(planet.getY() - blackHole.y, 2));
 
                     if (distance < blackHole.eventHorizon / 2.0) {
                         // Damage planet (create a damage source) - damage scaled by base power
@@ -399,8 +403,8 @@ public class AbilityManager {
                 // Check for enemy planets and ships in flame area
                 for (Planet target : game.getPlanets()) {
                     if (target.getOperator() instanceof Bot) {
-                        double distance = Math.sqrt(Math.pow(target.getX() - flameX, 2) +
-                                Math.pow(target.getY() - flameY, 2));
+                        double distance = Math
+                                .sqrt(Math.pow(target.getX() - flameX, 2) + Math.pow(target.getY() - flameY, 2));
 
                         if (distance < 30) { // Flame radius
                             Ship flameAttack = new Ship(game.getPlayer(), flamePlanet, target, 0, 1,
@@ -413,8 +417,8 @@ public class AbilityManager {
                 // Destroy enemy ships in flame area
                 game.getShips().removeIf(ship -> {
                     if (ship.getOperator() instanceof Bot) {
-                        double distance = Math.sqrt(Math.pow(ship.getX() - flameX, 2) +
-                                Math.pow(ship.getY() - flameY, 2));
+                        double distance = Math
+                                .sqrt(Math.pow(ship.getX() - flameX, 2) + Math.pow(ship.getY() - flameY, 2));
                         return distance < 25; // Flame ship destruction radius
                     }
                     return false;
@@ -436,11 +440,10 @@ public class AbilityManager {
             for (Planet infectedPlanet : currentlyInfected) {
                 // Try to spread to nearby enemy planets
                 for (Planet nearbyPlanet : game.getPlanets()) {
-                    if (nearbyPlanet.getOperator() != game.getPlayer() &&
-                            !infectedPlanets.containsKey(nearbyPlanet)) {
+                    if (nearbyPlanet.getOperator() != game.getPlayer() && !infectedPlanets.containsKey(nearbyPlanet)) {
 
-                        double distance = Math.sqrt(Math.pow(nearbyPlanet.getX() - infectedPlanet.getX(), 2) +
-                                Math.pow(nearbyPlanet.getY() - infectedPlanet.getY(), 2));
+                        double distance = Math.sqrt(Math.pow(nearbyPlanet.getX() - infectedPlanet.getX(), 2)
+                                + Math.pow(nearbyPlanet.getY() - infectedPlanet.getY(), 2));
 
                         // Spread infection if planets are intersecting (overlapping)
                         // Two circles intersect when distance < sum of their radii
@@ -541,8 +544,7 @@ public class AbilityManager {
     }
 
     public boolean isPlanetCursed(Planet planet) {
-        return cursedPlanets.containsKey(planet) &&
-                System.currentTimeMillis() < cursedPlanets.get(planet);
+        return cursedPlanets.containsKey(planet) && System.currentTimeMillis() < cursedPlanets.get(planet);
     }
 
     // Multipliers for abilities
@@ -724,8 +726,8 @@ public class AbilityManager {
                 // Check for planets in event horizon and damage them
                 for (Planet planet : game.getPlanets()) {
                     if (planet.getOperator() != operator) {
-                        double distance = Math.sqrt(Math.pow(planet.getX() - blackHole.x, 2) +
-                                Math.pow(planet.getY() - blackHole.y, 2));
+                        double distance = Math.sqrt(
+                                Math.pow(planet.getX() - blackHole.x, 2) + Math.pow(planet.getY() - blackHole.y, 2));
 
                         if (distance < blackHole.eventHorizon / 2.0) {
                             // Damage planet (create a damage source)
@@ -736,8 +738,8 @@ public class AbilityManager {
                 }
                 for (Ship ship : game.getShips()) {
                     if (ship.getOperator() != operator) {
-                        double distance = Math.sqrt(Math.pow(ship.getX() - blackHole.x, 2) +
-                                Math.pow(ship.getY() - blackHole.y, 2));
+                        double distance = Math
+                                .sqrt(Math.pow(ship.getX() - blackHole.x, 2) + Math.pow(ship.getY() - blackHole.y, 2));
                         if (distance < blackHole.eventHorizon / 2.0) {
                             ship.takeDamage(50);
                         }
@@ -780,13 +782,11 @@ public class AbilityManager {
             // Spread to nearby enemy planets every 3 seconds
             if ((currentTime - infectionStartTime) % 3000 < 50) {
                 for (Planet nearbyPlanet : game.getPlanets()) {
-                    if (nearbyPlanet.getOperator() != operator &&
-                            !infectedPlanets.containsKey(nearbyPlanet) &&
-                            !newInfections.contains(nearbyPlanet)) {
+                    if (nearbyPlanet.getOperator() != operator && !infectedPlanets.containsKey(nearbyPlanet)
+                            && !newInfections.contains(nearbyPlanet)) {
 
-                        double distance = Math.sqrt(
-                                Math.pow(nearbyPlanet.getX() - infectedPlanet.getX(), 2) +
-                                        Math.pow(nearbyPlanet.getY() - infectedPlanet.getY(), 2));
+                        double distance = Math.sqrt(Math.pow(nearbyPlanet.getX() - infectedPlanet.getX(), 2)
+                                + Math.pow(nearbyPlanet.getY() - infectedPlanet.getY(), 2));
 
                         if (distance < 100) { // Infection spread range
                             newInfections.add(nearbyPlanet);
@@ -878,42 +878,42 @@ public class AbilityManager {
      */
     public void activateOperatorAbility(Operator operator, AbilityType type, double duration, int power) {
         switch (type) {
-            case FREEZE:
-                activateOperatorFreeze(operator, duration);
-                break;
-            case MISSILE_BARRAGE:
-                activateOperatorMissileBarrage(operator, power);
-                break;
-            case SHIELD:
-                activateOperatorShield(operator, duration);
-                break;
-            case FACTORY_HYPE:
-                activateOperatorFactoryHype(operator, duration);
-                break;
-            case IMPROVED_FACTORIES:
-                activateOperatorImprovedFactories(operator, duration);
-                break;
-            case ANSWERED_PRAYERS:
-                activateOperatorAnsweredPrayers(operator, power);
-                break;
-            case CURSE:
-                activateOperatorCurse(operator, duration, power);
-                break;
-            case BLACK_HOLE:
-                activateOperatorBlackHole(operator, duration, power);
-                break;
-            case PLANETARY_FLAME:
-                activateOperatorPlanetaryFlame(operator, duration, power);
-                break;
-            case PLANETARY_INFECTION:
-                activateOperatorPlanetaryInfection(operator, duration, power);
-                break;
-            case UNSTOPPABLE_SHIPS:
-                activateOperatorUnstoppableShips(operator, duration, power);
-                break;
-            case ORBITAL_FREEZE:
-                activateOperatorOrbitalFreeze(operator, duration, power);
-                break;
+        case FREEZE:
+            activateOperatorFreeze(operator, duration);
+            break;
+        case MISSILE_BARRAGE:
+            activateOperatorMissileBarrage(operator, power);
+            break;
+        case SHIELD:
+            activateOperatorShield(operator, duration);
+            break;
+        case FACTORY_HYPE:
+            activateOperatorFactoryHype(operator, duration);
+            break;
+        case IMPROVED_FACTORIES:
+            activateOperatorImprovedFactories(operator, duration);
+            break;
+        case ANSWERED_PRAYERS:
+            activateOperatorAnsweredPrayers(operator, power);
+            break;
+        case CURSE:
+            activateOperatorCurse(operator, duration, power);
+            break;
+        case BLACK_HOLE:
+            activateOperatorBlackHole(operator, duration, power);
+            break;
+        case PLANETARY_FLAME:
+            activateOperatorPlanetaryFlame(operator, duration, power);
+            break;
+        case PLANETARY_INFECTION:
+            activateOperatorPlanetaryInfection(operator, duration, power);
+            break;
+        case UNSTOPPABLE_SHIPS:
+            activateOperatorUnstoppableShips(operator, duration, power);
+            break;
+        case ORBITAL_FREEZE:
+            activateOperatorOrbitalFreeze(operator, duration, power);
+            break;
         }
     }
 
@@ -1138,8 +1138,7 @@ public class AbilityManager {
         Map<Planet, Long> frozenByOperator = operatorOrbitalFrozenPlanets.get(operator);
         if (frozenByOperator == null)
             return false;
-        return frozenByOperator.containsKey(planet) &&
-                System.currentTimeMillis() < frozenByOperator.get(planet);
+        return frozenByOperator.containsKey(planet) && System.currentTimeMillis() < frozenByOperator.get(planet);
     }
 
     public boolean isPlanetOrbitallyFrozen(Planet planet) {
@@ -1176,8 +1175,7 @@ public class AbilityManager {
         Map<Planet, Long> cursedByOperator = operatorCursedPlanets.get(operator);
         if (cursedByOperator == null)
             return false;
-        return cursedByOperator.containsKey(planet) &&
-                System.currentTimeMillis() < cursedByOperator.get(planet);
+        return cursedByOperator.containsKey(planet) && System.currentTimeMillis() < cursedByOperator.get(planet);
     }
 
     public boolean isOperatorPlanetInfected(Operator operator, Planet planet) {
@@ -1185,5 +1183,56 @@ public class AbilityManager {
         if (infectedByOperator == null)
             return false;
         return infectedByOperator.containsKey(planet);
+    }
+
+    /**
+     * Play appropriate sound effect for ability activation
+     */
+    private void playAbilitySound(AbilityType type) {
+        Sound soundToPlay;
+
+        switch (type) {
+        case FREEZE:
+            soundToPlay = Sound.ABILITY_ACTIVATE_FREEZE;
+            break;
+        case MISSILE_BARRAGE:
+            soundToPlay = Sound.ABILITY_ACTIVATE_MISSILE_BARRAGE;
+            break;
+        case SHIELD:
+            soundToPlay = Sound.ABILITY_ACTIVATE_SHIELD;
+            break;
+        case FACTORY_HYPE:
+            soundToPlay = Sound.ABILITY_ACTIVATE_FACTORY_HYPE;
+            break;
+        case IMPROVED_FACTORIES:
+            soundToPlay = Sound.ABILITY_ACTIVATE_IMPROVED_FACTORIES;
+            break;
+        case ANSWERED_PRAYERS:
+            soundToPlay = Sound.ABILITY_ACTIVATE_ANSWERED_PRAYERS;
+            break;
+        case CURSE:
+            soundToPlay = Sound.ABILITY_ACTIVATE_CURSE;
+            break;
+        case BLACK_HOLE:
+            soundToPlay = Sound.ABILITY_ACTIVATE_BLACK_HOLE;
+            break;
+        case PLANETARY_FLAME:
+            soundToPlay = Sound.ABILITY_ACTIVATE_PLANETARY_FLAME;
+            break;
+        case PLANETARY_INFECTION:
+            soundToPlay = Sound.ABILITY_ACTIVATE_PLANETARY_INFECTION;
+            break;
+        case UNSTOPPABLE_SHIPS:
+            soundToPlay = Sound.ABILITY_ACTIVATE_UNSTOPPABLE_SHIPS;
+            break;
+        case ORBITAL_FREEZE:
+            soundToPlay = Sound.ABILITY_ACTIVATE_ORBITAL_FREEZE;
+            break;
+        default:
+            soundToPlay = Sound.ABILITY_ACTIVATE_SHIELD; // Default fallback sound
+            break;
+        }
+
+        game.getSoundManager().play(soundToPlay);
     }
 }

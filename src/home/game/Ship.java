@@ -6,6 +6,7 @@ import home.game.operators.Bot;
 import home.game.operators.Operator;
 import home.game.operators.player.Player;
 import home.game.planets.Planet;
+import home.sounds.Sound;
 
 public class Ship {
 
@@ -253,9 +254,8 @@ public class Ship {
 
         for (Ship enemyShip : allShips) {
             // Check if this is an enemy ship from our destination targeting our origin
-            if (enemyShip.getOperator() != this.operator &&
-                    enemyShip.getOrigin() == this.destination &&
-                    enemyShip.getDestination() == this.origin) {
+            if (enemyShip.getOperator() != this.operator && enemyShip.getOrigin() == this.destination
+                    && enemyShip.getDestination() == this.origin) {
 
                 // Calculate distance to this enemy ship
                 double distance = Math.hypot(enemyShip.getX() - x, enemyShip.getY() - y);
@@ -333,8 +333,8 @@ public class Ship {
     }
 
     /**
-     * Checks for collisions with other ships and handles collision damage
-     * Only checks collisions with enemy ships - friendly ships don't collide
+     * Checks for collisions with other ships and handles collision damage Only
+     * checks collisions with enemy ships - friendly ships don't collide
      */
     private void checkShipCollisions() {
         final double COLLISION_DISTANCE = GameConstants.getShipSize() + 2; // Ship collision radius
@@ -532,8 +532,7 @@ public class Ship {
 
     /**
      * Performs advanced combat maneuvers with persistent states to prevent
-     * oscillation
-     * Ships commit to flee/chase decisions until combat is resolved
+     * oscillation Ships commit to flee/chase decisions until combat is resolved
      */
     private void performCombatManeuvers() {
         Ship currentTarget = getCombatTarget();
@@ -720,8 +719,8 @@ public class Ship {
         boolean inBottomEdge = y > GameConstants.getGameHeight() - EDGE_BUFFER;
 
         // Handle corners with diagonal escape to prevent getting stuck
-        if ((inLeftEdge && inTopEdge) || (inRightEdge && inTopEdge) ||
-                (inLeftEdge && inBottomEdge) || (inRightEdge && inBottomEdge)) {
+        if ((inLeftEdge && inTopEdge) || (inRightEdge && inTopEdge) || (inLeftEdge && inBottomEdge)
+                || (inRightEdge && inBottomEdge)) {
 
             // Force diagonal movement away from corner
             if (inLeftEdge && inTopEdge) {
@@ -821,59 +820,59 @@ public class Ship {
         double moveX = 0, moveY = 0;
 
         switch (maneuverType) {
-            case 0: // Clockwise circling
-                moveX = dy * 0.9;
-                moveY = -dx * 0.9;
-                break;
+        case 0: // Clockwise circling
+            moveX = dy * 0.9;
+            moveY = -dx * 0.9;
+            break;
 
-            case 1: // Counter-clockwise circling
-                moveX = -dy * 0.9;
-                moveY = dx * 0.9;
-                break;
+        case 1: // Counter-clockwise circling
+            moveX = -dy * 0.9;
+            moveY = dx * 0.9;
+            break;
 
-            case 2: // Approach and retreat (strafing)
-                if (distanceToEnemy > GameConstants.getCombatEngagementDistance()) {
-                    moveX = dx * 0.6 + dy * 0.4;
-                    moveY = dy * 0.6 - dx * 0.4;
-                } else {
-                    moveX = -dx * 0.3 + dy * 0.7;
-                    moveY = -dy * 0.3 - dx * 0.7;
-                }
-                break;
+        case 2: // Approach and retreat (strafing)
+            if (distanceToEnemy > GameConstants.getCombatEngagementDistance()) {
+                moveX = dx * 0.6 + dy * 0.4;
+                moveY = dy * 0.6 - dx * 0.4;
+            } else {
+                moveX = -dx * 0.3 + dy * 0.7;
+                moveY = -dy * 0.3 - dx * 0.7;
+            }
+            break;
 
-            case 3: // Figure-8 / weaving maneuver
-                double waveTime = (time % 2000) / 2000.0 * Math.PI * 2;
-                double waveOffset = Math.sin(waveTime + shipId) * 0.6; // Unique phase per ship
-                moveX = dy * waveOffset - dx * 0.2;
-                moveY = -dx * waveOffset - dy * 0.2;
-                break;
+        case 3: // Figure-8 / weaving maneuver
+            double waveTime = (time % 2000) / 2000.0 * Math.PI * 2;
+            double waveOffset = Math.sin(waveTime + shipId) * 0.6; // Unique phase per ship
+            moveX = dy * waveOffset - dx * 0.2;
+            moveY = -dx * waveOffset - dy * 0.2;
+            break;
 
-            case 4: // Spiral maneuver (expanding/contracting circle)
-                double spiralTime = (time % 4000) / 4000.0 * Math.PI * 2;
-                double spiralRadius = 0.5 + 0.4 * Math.sin(spiralTime + shipId);
-                moveX = dy * spiralRadius + dx * (0.7 - spiralRadius);
-                moveY = -dx * spiralRadius + dy * (0.7 - spiralRadius);
-                break;
+        case 4: // Spiral maneuver (expanding/contracting circle)
+            double spiralTime = (time % 4000) / 4000.0 * Math.PI * 2;
+            double spiralRadius = 0.5 + 0.4 * Math.sin(spiralTime + shipId);
+            moveX = dy * spiralRadius + dx * (0.7 - spiralRadius);
+            moveY = -dx * spiralRadius + dy * (0.7 - spiralRadius);
+            break;
 
-            case 5: // Hit and run (quick approach then retreat)
-                double cycleTime = (time + shipId * 100) % 3000; // 3-second cycle, offset per ship
-                if (cycleTime < 1000) {
-                    // Aggressive approach
-                    moveX = dx * 0.8 + dy * 0.3;
-                    moveY = dy * 0.8 - dx * 0.3;
-                } else {
-                    // Retreat while strafing
-                    moveX = -dx * 0.6 + dy * 0.8;
-                    moveY = -dy * 0.6 - dx * 0.8;
-                }
-                break;
+        case 5: // Hit and run (quick approach then retreat)
+            double cycleTime = (time + shipId * 100) % 3000; // 3-second cycle, offset per ship
+            if (cycleTime < 1000) {
+                // Aggressive approach
+                moveX = dx * 0.8 + dy * 0.3;
+                moveY = dy * 0.8 - dx * 0.3;
+            } else {
+                // Retreat while strafing
+                moveX = -dx * 0.6 + dy * 0.8;
+                moveY = -dy * 0.6 - dx * 0.8;
+            }
+            break;
 
-            case 6: // Zigzag/evasive pattern
-                double zigzagTime = (time + shipId * 50) % 1500; // 1.5-second zigzag, offset per ship
-                double zigzagDirection = (zigzagTime < 750) ? 1.0 : -1.0;
-                moveX = dy * zigzagDirection * 0.8 + dx * 0.2;
-                moveY = -dx * zigzagDirection * 0.8 + dy * 0.2;
-                break;
+        case 6: // Zigzag/evasive pattern
+            double zigzagTime = (time + shipId * 50) % 1500; // 1.5-second zigzag, offset per ship
+            double zigzagDirection = (zigzagTime < 750) ? 1.0 : -1.0;
+            moveX = dy * zigzagDirection * 0.8 + dx * 0.2;
+            moveY = -dx * zigzagDirection * 0.8 + dy * 0.2;
+            break;
         }
 
         // Add slight avoidance for nearby obstacles (but not emergency level)
@@ -1174,9 +1173,8 @@ public class Ship {
 
     /**
      * Calculates a smart path that includes initial launch direction and strong
-     * obstacle avoidance
-     * Ships launch away from their origin planet and navigate around obstacles
-     * Includes smoothing to prevent twitching behavior
+     * obstacle avoidance Ships launch away from their origin planet and navigate
+     * around obstacles Includes smoothing to prevent twitching behavior
      */
     private double calculateSmartPath(double desiredAngle, double targetX, double targetY) {
         // Constants for pathfinding
@@ -1406,8 +1404,7 @@ public class Ship {
 
     /**
      * Detects if the ship is heading into a pinch point (narrow space between
-     * planets)
-     * More conservative detection to reduce wobbling
+     * planets) More conservative detection to reduce wobbling
      */
     private boolean detectPinchPoint(double steeringX, double steeringY, List<Planet> allPlanets) {
         final double LOOKAHEAD_DISTANCE = 150; // Shorter lookahead to be less aggressive
@@ -1456,8 +1453,8 @@ public class Ship {
     }
 
     /**
-     * Calculates simple avoidance direction when in a pinch point
-     * Simplified to reduce wobbling - just finds general direction with most space
+     * Calculates simple avoidance direction when in a pinch point Simplified to
+     * reduce wobbling - just finds general direction with most space
      */
     private double[] calculatePinchAvoidance(List<Planet> allPlanets) {
         double bestAvoidX = 0;
@@ -1521,9 +1518,14 @@ public class Ship {
             this.health = 0;
         }
 
-        // Create explosion when ship dies
-        if (wasAlive && this.health <= 0 && game != null) {
-            createExplosion(Explosion.ExplosionType.SHIP_DESTRUCTION);
+        // Play hit sound and create explosion when ship dies
+        if (game != null) {
+            if (wasAlive && this.health <= 0) {
+                createExplosion(Explosion.ExplosionType.SHIP_DESTRUCTION);
+                // Explosion sound is played in Game.addExplosion()
+            } else if (damage > 0) {
+                game.getSoundManager().play(Sound.LASER_HIT);
+            }
         }
     }
 

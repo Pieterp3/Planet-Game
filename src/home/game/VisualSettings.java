@@ -8,6 +8,7 @@ import java.util.Map;
 import home.game.abilities.AbilityType;
 import home.game.io.SaveLoadManager;
 import home.game.io.datacontainers.VisualSettingsContainer;
+import home.sounds.SoundManager;
 
 /**
  * Manages visual display settings for the game
@@ -25,22 +26,27 @@ public class VisualSettings {
     // Visual adjustments
     private float connectionLineOpacity = 0.6f; // 0.0 to 1.0
 
+    // Sound settings
+    private boolean soundEnabled = true;
+    private double masterVolume = 0.7; // 0.0 to 1.0
+    private boolean reverbEnabled = false;
+
     // Planet customization
     private Color playerPlanetColor = Color.BLUE; // Default blue color
 
     // Keybind mappings - maps key codes to ability types
     private Map<Integer, AbilityType> keybindMap = new HashMap<>();
 
+    // Static sound manager for UI access
+    private static SoundManager globalSoundManager = null;
+
     // Default keybinds (will be applied if no saved keybinds exist)
-    private static final int[] DEFAULT_KEYS = {
-            KeyEvent.VK_1, KeyEvent.VK_2, KeyEvent.VK_3, KeyEvent.VK_4, KeyEvent.VK_5,
-            KeyEvent.VK_6, KeyEvent.VK_7, KeyEvent.VK_8, KeyEvent.VK_9, KeyEvent.VK_0,
-            KeyEvent.VK_MINUS, KeyEvent.VK_EQUALS
-    };
+    private static final int[] DEFAULT_KEYS = { KeyEvent.VK_1, KeyEvent.VK_2, KeyEvent.VK_3, KeyEvent.VK_4,
+            KeyEvent.VK_5, KeyEvent.VK_6, KeyEvent.VK_7, KeyEvent.VK_8, KeyEvent.VK_9, KeyEvent.VK_0, KeyEvent.VK_MINUS,
+            KeyEvent.VK_EQUALS };
 
     // Predefined color options for players
-    public static final Color[] AVAILABLE_PLANET_COLORS = {
-            Color.BLUE, // Classic blue
+    public static final Color[] AVAILABLE_PLANET_COLORS = { Color.BLUE, // Classic blue
             Color.CYAN, // Cyan
             new Color(0, 150, 255), // Light blue
             new Color(0, 100, 200), // Dark blue
@@ -70,31 +76,10 @@ public class VisualSettings {
     }
 
     // Color names corresponding to AVAILABLE_PLANET_COLORS
-    public static final String[] PLANET_COLOR_NAMES = {
-            "Classic Blue",
-            "Cyan",
-            "Light Blue",
-            "Dark Blue",
-            "Purple",
-            "Deep Pink",
-            "Spring Green",
-            "Orange Red",
-            "Gold",
-            "Lime Green",
-            "Crimson",
-            "Blue Violet",
-            "Hot Pink",
-            "Deep Sky Blue",
-            "Dark Orange",
-            "Yellow Green",
-            "Indigo",
-            "Light Pink",
-            "Brown",
-            "Teal",
-            "Peach",
-            "Steel Blue",
-            "Magenta"
-    };
+    public static final String[] PLANET_COLOR_NAMES = { "Classic Blue", "Cyan", "Light Blue", "Dark Blue", "Purple",
+            "Deep Pink", "Spring Green", "Orange Red", "Gold", "Lime Green", "Crimson", "Blue Violet", "Hot Pink",
+            "Deep Sky Blue", "Dark Orange", "Yellow Green", "Indigo", "Light Pink", "Brown", "Teal", "Peach",
+            "Steel Blue", "Magenta" };
 
     private VisualSettings() {
         loadSettings();
@@ -144,6 +129,19 @@ public class VisualSettings {
         return keybindMap.get(keyCode);
     }
 
+    // Sound getters
+    public boolean isSoundEnabled() {
+        return soundEnabled;
+    }
+
+    public double getMasterVolume() {
+        return masterVolume;
+    }
+
+    public boolean isReverbEnabled() {
+        return reverbEnabled;
+    }
+
     public Integer getKeyForAbility(AbilityType ability) {
         for (Map.Entry<Integer, AbilityType> entry : keybindMap.entrySet()) {
             if (entry.getValue() == ability) {
@@ -155,32 +153,32 @@ public class VisualSettings {
 
     public static String getKeyName(int keyCode) {
         switch (keyCode) {
-            case KeyEvent.VK_1:
-                return "1";
-            case KeyEvent.VK_2:
-                return "2";
-            case KeyEvent.VK_3:
-                return "3";
-            case KeyEvent.VK_4:
-                return "4";
-            case KeyEvent.VK_5:
-                return "5";
-            case KeyEvent.VK_6:
-                return "6";
-            case KeyEvent.VK_7:
-                return "7";
-            case KeyEvent.VK_8:
-                return "8";
-            case KeyEvent.VK_9:
-                return "9";
-            case KeyEvent.VK_0:
-                return "0";
-            case KeyEvent.VK_MINUS:
-                return "-";
-            case KeyEvent.VK_EQUALS:
-                return "=";
-            default:
-                return "?";
+        case KeyEvent.VK_1:
+            return "1";
+        case KeyEvent.VK_2:
+            return "2";
+        case KeyEvent.VK_3:
+            return "3";
+        case KeyEvent.VK_4:
+            return "4";
+        case KeyEvent.VK_5:
+            return "5";
+        case KeyEvent.VK_6:
+            return "6";
+        case KeyEvent.VK_7:
+            return "7";
+        case KeyEvent.VK_8:
+            return "8";
+        case KeyEvent.VK_9:
+            return "9";
+        case KeyEvent.VK_0:
+            return "0";
+        case KeyEvent.VK_MINUS:
+            return "-";
+        case KeyEvent.VK_EQUALS:
+            return "=";
+        default:
+            return "?";
         }
     }
 
@@ -246,6 +244,56 @@ public class VisualSettings {
         saveSettings();
     }
 
+    // Sound setters
+    public void setSoundEnabled(boolean soundEnabled) {
+        this.soundEnabled = soundEnabled;
+        saveSettings();
+
+        // Update global sound manager if it exists
+        if (globalSoundManager != null) {
+            globalSoundManager.setEnabled(soundEnabled);
+        }
+    }
+
+    public void setMasterVolume(double volume) {
+        this.masterVolume = Math.max(0.0, Math.min(1.0, volume));
+        saveSettings();
+
+        // Update global sound manager if it exists
+        if (globalSoundManager != null) {
+            globalSoundManager.setVolume(volume);
+        }
+    }
+
+    public void setReverbEnabled(boolean reverbEnabled) {
+        this.reverbEnabled = reverbEnabled;
+        saveSettings();
+
+        // Update global sound manager if it exists
+        if (globalSoundManager != null) {
+            globalSoundManager.setReverbEnabled(reverbEnabled);
+        }
+    }
+
+    // Static methods for global sound manager
+    public static void setGlobalSoundManager(SoundManager soundManager) {
+        globalSoundManager = soundManager;
+        if (soundManager != null) {
+            VisualSettings settings = getInstance();
+            soundManager.setEnabled(settings.soundEnabled);
+            soundManager.setVolume(settings.masterVolume);
+            soundManager.setReverbEnabled(settings.reverbEnabled);
+        }
+    }
+
+    public static SoundManager getGlobalSoundManager() {
+        return globalSoundManager;
+    }
+
+    public SoundManager getSoundManager() {
+        return globalSoundManager;
+    }
+
     public void clearKeybind(AbilityType ability) {
         keybindMap.entrySet().removeIf(entry -> entry.getValue() == ability);
         saveSettings();
@@ -297,6 +345,11 @@ public class VisualSettings {
         this.connectionLineOpacity = settings.connectionLineOpacity;
         this.playerPlanetColor = settings.playerPlanetColor;
 
+        // Load sound settings
+        this.soundEnabled = settings.soundEnabled;
+        this.masterVolume = settings.masterVolume;
+        this.reverbEnabled = settings.reverbEnabled;
+
         // Load keybinds or set defaults
         if (settings.keybindMap != null) {
             this.keybindMap = new HashMap<>(settings.keybindMap);
@@ -320,9 +373,8 @@ public class VisualSettings {
      * Save settings to file
      */
     private void saveSettings() {
-        SaveLoadManager.getInstance().saveVisualSettings(displayConnectionLines, displayEffects,
-                displayProjectiles, displayPlanetMoons,
-                displayShips, connectionLineOpacity,
-                playerPlanetColor, keybindMap);
+        SaveLoadManager.getInstance().saveVisualSettings(displayConnectionLines, displayEffects, displayProjectiles,
+                displayPlanetMoons, displayShips, connectionLineOpacity, playerPlanetColor, keybindMap, soundEnabled,
+                masterVolume, reverbEnabled);
     }
 }

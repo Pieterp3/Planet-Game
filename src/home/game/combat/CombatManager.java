@@ -1,5 +1,6 @@
 package home.game.combat;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,17 +65,14 @@ public class CombatManager {
      * Finds nearby enemy ships that are attacking the given ship's origin planet
      */
     private Ship findNearbyEnemyShip(Ship ship) {
-        List<Ship> allShips = game.getShips();
+        List<Ship> allShips = new ArrayList<>(game.getShips()); // Create copy to avoid ConcurrentModificationException
         Ship closestEnemy = null;
         double closestDistance = GameConstants.getCombatEngagementDistance();
 
         for (Ship otherShip : allShips) {
             // Only target enemy ships that are attacking our origin planet
-            if (otherShip != ship &&
-                    otherShip.getOperator() != ship.getOperator() &&
-                    !otherShip.isDestroyed() &&
-                    !otherShip.isMissile() &&
-                    otherShip.getDestination() == ship.getOrigin()) {
+            if (otherShip != ship && otherShip.getOperator() != ship.getOperator() && !otherShip.isDestroyed()
+                    && !otherShip.isMissile() && otherShip.getDestination() == ship.getOrigin()) {
 
                 double distance = Math.hypot(otherShip.getX() - ship.getX(), otherShip.getY() - ship.getY());
                 if (distance < closestDistance) {
@@ -105,8 +103,7 @@ public class CombatManager {
         }
 
         // Check distance
-        double distance = Math.hypot(state.combatTarget.getX() - ship.getX(),
-                state.combatTarget.getY() - ship.getY());
+        double distance = Math.hypot(state.combatTarget.getX() - ship.getX(), state.combatTarget.getY() - ship.getY());
         if (distance > GameConstants.getCombatDisengagementDistance()) {
             return false;
         }
@@ -136,8 +133,7 @@ public class CombatManager {
         }
 
         // Target must be from different operator and attacking our origin
-        return target.getOperator() != ship.getOperator() &&
-                target.getDestination() == ship.getOrigin();
+        return target.getOperator() != ship.getOperator() && target.getDestination() == ship.getOrigin();
     }
 
     /**
@@ -263,17 +259,9 @@ public class CombatManager {
 
         // Create a projectile that aims at the predicted position instead of current
         // position
-        Projectile projectile = new Projectile(
-                ship.getOperator(),
-                ship,
-                target,
-                ship.getX(),
-                ship.getY(),
-                GameConstants.getProjectileSpeed(),
-                ship.getDamage(),
-                GameConstants.getProjectileMaxRange(),
-                predictedPosition[0],
-                predictedPosition[1]);
+        Projectile projectile = new Projectile(ship.getOperator(), ship, target, ship.getX(), ship.getY(),
+                GameConstants.getProjectileSpeed(), ship.getDamage(), GameConstants.getProjectileMaxRange(),
+                predictedPosition[0], predictedPosition[1]);
 
         game.addProjectile(projectile);
     }

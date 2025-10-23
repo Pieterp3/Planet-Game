@@ -7,6 +7,8 @@ import javax.swing.Timer;
 
 import home.game.abilities.AbilityType;
 import home.game.operators.player.PlayerData;
+import home.game.VisualSettings;
+import home.sounds.Sound;
 
 public class AbilityButtonListener implements ActionListener {
     private final AbilityType abilityType;
@@ -26,13 +28,23 @@ public class AbilityButtonListener implements ActionListener {
         if (playerData.purchaseAbility(abilityType)) {
             shopMenu.refreshUpgrades(); // This will refresh the ability cards since we're using the same method
 
+            // Play success sound
+            if (VisualSettings.getGlobalSoundManager() != null) {
+                VisualSettings.getGlobalSoundManager().play(Sound.PURCHASE_SUCCESS);
+            }
+
             // Show purchase success feedback
             Timer feedbackTimer = new Timer(100, null);
             feedbackTimer.addActionListener(evt -> {
-                // Could add particle effect or sound here
+                // Could add particle effect here
                 feedbackTimer.stop();
             });
             feedbackTimer.start();
+        } else {
+            // Play failure sound
+            if (VisualSettings.getGlobalSoundManager() != null) {
+                VisualSettings.getGlobalSoundManager().play(Sound.PURCHASE_FAIL);
+            }
         }
     }
 }

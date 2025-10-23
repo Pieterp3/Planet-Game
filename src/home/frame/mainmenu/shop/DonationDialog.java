@@ -21,8 +21,10 @@ import javax.swing.SwingConstants;
 
 import home.frame.SpaceButton;
 import home.frame.background.BackgroundArtist;
+import home.game.VisualSettings;
 import home.game.challenges.ChallengeManager;
 import home.game.operators.player.PlayerData;
+import home.sounds.Sound;
 
 public class DonationDialog extends JDialog {
     private BackgroundArtist backgroundArtist;
@@ -104,10 +106,7 @@ public class DonationDialog extends JDialog {
 
         for (int amount : donationAmounts) {
             SpaceButton donateBtn = new SpaceButton(amount + " COINS");
-            donateBtn.setColors(
-                    new Color(255, 215, 0, 180),
-                    new Color(255, 235, 50, 200),
-                    new Color(200, 165, 0, 220));
+            donateBtn.setColors(new Color(255, 215, 0, 180), new Color(255, 235, 50, 200), new Color(200, 165, 0, 220));
             donateBtn.setPreferredSize(new Dimension(120, 50));
 
             donateBtn.addActionListener(e -> processDonation(amount));
@@ -120,10 +119,7 @@ public class DonationDialog extends JDialog {
         footerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
 
         SpaceButton cancelBtn = new SpaceButton("CANCEL");
-        cancelBtn.setColors(
-                new Color(150, 50, 50, 180),
-                new Color(180, 70, 70, 200),
-                new Color(120, 30, 30, 220));
+        cancelBtn.setColors(new Color(150, 50, 50, 180), new Color(180, 70, 70, 200), new Color(120, 30, 30, 220));
         cancelBtn.setPreferredSize(new Dimension(120, 40));
         cancelBtn.addActionListener(e -> dispose());
 
@@ -148,6 +144,11 @@ public class DonationDialog extends JDialog {
 
     private void processDonation(int amount) {
         if (playerData.spendCoins(amount)) {
+            // Play donation sound
+            if (VisualSettings.getGlobalSoundManager() != null) {
+                VisualSettings.getGlobalSoundManager().play(Sound.GOLD_DONATION);
+            }
+
             // Track the donation for challenges
             ChallengeManager.getInstance().onGoldDonated(amount);
             donationMade = true;
@@ -190,10 +191,7 @@ public class DonationDialog extends JDialog {
         messageLabel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         SpaceButton okBtn = new SpaceButton("CONTINUE");
-        okBtn.setColors(
-                new Color(50, 150, 50, 180),
-                new Color(70, 180, 70, 200),
-                new Color(30, 120, 30, 220));
+        okBtn.setColors(new Color(50, 150, 50, 180), new Color(70, 180, 70, 200), new Color(30, 120, 30, 220));
         okBtn.addActionListener(e -> successDialog.dispose());
 
         JPanel btnPanel = new JPanel(new FlowLayout());
@@ -236,10 +234,7 @@ public class DonationDialog extends JDialog {
         messageLabel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         SpaceButton okBtn = new SpaceButton("UNDERSTOOD");
-        okBtn.setColors(
-                new Color(150, 50, 50, 180),
-                new Color(180, 70, 70, 200),
-                new Color(120, 30, 30, 220));
+        okBtn.setColors(new Color(150, 50, 50, 180), new Color(180, 70, 70, 200), new Color(120, 30, 30, 220));
         okBtn.addActionListener(e -> failDialog.dispose());
 
         JPanel btnPanel = new JPanel(new FlowLayout());

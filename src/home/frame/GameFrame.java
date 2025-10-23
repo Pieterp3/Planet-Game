@@ -13,8 +13,10 @@ import home.frame.mainmenu.helpmenu.HelpMenu;
 import home.frame.mainmenu.shop.ShopMenu;
 import home.game.Game;
 import home.game.GameConstants;
+import home.game.VisualSettings;
 import home.game.challenges.ChallengeManager;
 import home.game.operators.Difficulty;
+import home.sounds.Sound;
 
 public class GameFrame extends JFrame {
 
@@ -50,6 +52,11 @@ public class GameFrame extends JFrame {
     }
 
     public void openGameMenu(Difficulty difficulty) {
+        // Play menu transition sound
+        if (VisualSettings.getGlobalSoundManager() != null) {
+            VisualSettings.getGlobalSoundManager().play(Sound.MENU_TRANSITION);
+        }
+
         getContentPane().removeAll();
         game = new Game(difficulty); // Create fresh game instance with difficulty
         GameMenu menu = createGameMenu(difficulty);
@@ -64,6 +71,11 @@ public class GameFrame extends JFrame {
     }
 
     public void openMainMenu() {
+        // Play menu transition sound
+        if (VisualSettings.getGlobalSoundManager() != null) {
+            VisualSettings.getGlobalSoundManager().play(Sound.MENU_TRANSITION);
+        }
+
         getContentPane().removeAll();
         // Clean up previous menu if it exists
         if (mainMenu != null) {
@@ -76,6 +88,11 @@ public class GameFrame extends JFrame {
     }
 
     public void openShop() {
+        // Play menu transition sound
+        if (VisualSettings.getGlobalSoundManager() != null) {
+            VisualSettings.getGlobalSoundManager().play(Sound.MENU_TRANSITION);
+        }
+
         getContentPane().removeAll();
         // Clean up previous menu if it exists
         if (shopMenu != null) {
@@ -88,6 +105,11 @@ public class GameFrame extends JFrame {
     }
 
     public void openAchievements() {
+        // Play menu transition sound
+        if (VisualSettings.getGlobalSoundManager() != null) {
+            VisualSettings.getGlobalSoundManager().play(Sound.MENU_TRANSITION);
+        }
+
         getContentPane().removeAll();
         AchievementMenu achievementMenu = new AchievementMenu(this);
         add(achievementMenu);
@@ -96,6 +118,11 @@ public class GameFrame extends JFrame {
     }
 
     public void openSettings() {
+        // Play menu transition sound
+        if (VisualSettings.getGlobalSoundManager() != null) {
+            VisualSettings.getGlobalSoundManager().play(Sound.MENU_TRANSITION);
+        }
+
         getContentPane().removeAll();
         // Clean up previous menu if it exists
         if (settingsMenu != null) {
@@ -108,6 +135,11 @@ public class GameFrame extends JFrame {
     }
 
     public void openHelp() {
+        // Play menu transition sound
+        if (VisualSettings.getGlobalSoundManager() != null) {
+            VisualSettings.getGlobalSoundManager().play(Sound.MENU_TRANSITION);
+        }
+
         getContentPane().removeAll();
         // Clean up previous menu if it exists
         if (helpMenu != null) {

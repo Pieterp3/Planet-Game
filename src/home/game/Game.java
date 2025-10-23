@@ -12,6 +12,8 @@ import home.game.operators.Operator;
 import home.game.operators.player.Player;
 import home.game.operators.player.PlayerData;
 import home.game.planets.Planet;
+import home.sounds.Sound;
+import home.sounds.SoundManager;
 
 public class Game {
 
@@ -25,6 +27,7 @@ public class Game {
     private CombatManager combatManager;
     private AbilityManager abilityManager;
     private ChallengeManager challengeManager;
+    private SoundManager soundManager;
     private long gameStartTime;
     private boolean gameEnded = false;
     private Operator winner = null;
@@ -46,7 +49,11 @@ public class Game {
         this.combatManager = new CombatManager(this);
         this.abilityManager = new AbilityManager(this);
         this.challengeManager = ChallengeManager.getInstance();
+        this.soundManager = new SoundManager();
         this.gameStartTime = System.currentTimeMillis();
+
+        // Configure sound manager from settings and set it globally
+        VisualSettings.setGlobalSoundManager(this.soundManager);
 
         // Start challenge tracking for this game session
         this.challengeManager.onNewGame(difficulty);
@@ -151,10 +158,12 @@ public class Game {
 
     public void addProjectile(Projectile projectile) {
         this.projectiles.add(projectile);
+        soundManager.play(Sound.LASER_FIRE);
     }
 
     public void addExplosion(Explosion explosion) {
         this.explosions.add(explosion);
+        soundManager.play(Sound.SHIP_EXPLOSION);
     }
 
     public List<Explosion> getExplosions() {
@@ -191,6 +200,10 @@ public class Game {
 
     public AbilityManager getAbilityManager() {
         return abilityManager;
+    }
+
+    public SoundManager getSoundManager() {
+        return soundManager;
     }
 
     public Engine getEngine() {
@@ -261,10 +274,9 @@ public class Game {
     }
 
     /**
-     * Checks win conditions:
-     * 1. All planets belong to the same operator
-     * 2. Player has no planets or ships left (loses)
-     * 3. Player is the only operator left (wins)
+     * Checks win conditions: 1. All planets belong to the same operator 2. Player
+     * has no planets or ships left (loses) 3. Player is the only operator left
+     * (wins)
      * 
      * @return The winning operator, or null if no winner yet
      */

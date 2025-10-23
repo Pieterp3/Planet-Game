@@ -28,6 +28,7 @@ import home.game.Projectile;
 import home.game.Ship;
 import home.game.VisualSettings;
 import home.game.abilities.AbilityType;
+import home.sounds.Sound;
 import home.game.challenges.AchievementNotification;
 import home.game.challenges.ChallengeManager;
 import home.game.challenges.ProgressNotification;
@@ -66,6 +67,9 @@ public class GameMenu extends JPanel implements MouseListener, MouseMotionListen
 
     // Win condition tracking
     private boolean winPopupShown = false;
+
+    // Sound notification tracking
+    private int lastNotificationCount = 0;
 
     // Click targeting
     private Planet clickedPlanet = null;
@@ -273,6 +277,12 @@ public class GameMenu extends JPanel implements MouseListener, MouseMotionListen
             }
         }
 
+        // Play sound for new achievement notifications
+        if (activeAchievements.size() > lastNotificationCount) {
+            game.getSoundManager().play(Sound.ACHIEVEMENT_UNLOCK);
+        }
+        lastNotificationCount = activeAchievements.size();
+
         // Render all achievement notifications
         for (AchievementNotification achNotif : activeAchievements) {
             renderCompletionNotification(g, achNotif, currentY);
@@ -329,8 +339,7 @@ public class GameMenu extends JPanel implements MouseListener, MouseMotionListen
         // Rewards
         g.setFont(new Font("Arial", Font.PLAIN, 12));
         g.setColor(Color.YELLOW);
-        String rewardText = "+" + notification.getCoinReward() + " coins, +" +
-                notification.getScoreReward() + " score";
+        String rewardText = "+" + notification.getCoinReward() + " coins, +" + notification.getScoreReward() + " score";
         g.drawString(rewardText, x + 15, y + 65);
 
         // Rarity indicator in top right
@@ -351,11 +360,8 @@ public class GameMenu extends JPanel implements MouseListener, MouseMotionListen
         g.fillRoundRect(x, y, width, height, 12, 12);
 
         // Border with rarity color but dimmer
-        Color borderColor = new Color(
-                notification.getRarity().getColor().getRed(),
-                notification.getRarity().getColor().getGreen(),
-                notification.getRarity().getColor().getBlue(),
-                150);
+        Color borderColor = new Color(notification.getRarity().getColor().getRed(),
+                notification.getRarity().getColor().getGreen(), notification.getRarity().getColor().getBlue(), 150);
         g.setColor(borderColor);
         g.setStroke(new java.awt.BasicStroke(2));
         g.drawRoundRect(x, y, width, height, 12, 12);
@@ -428,6 +434,7 @@ public class GameMenu extends JPanel implements MouseListener, MouseMotionListen
         // Check if clicked on an ability diamond
         AbilityType clickedAbility = getAbilityAtPoint(x, y);
         if (clickedAbility != null) {
+            // Note: Sound is played in AbilityManager.activateAbility()
             game.getAbilityManager().activateAbility(clickedAbility);
             return;
         }
@@ -438,10 +445,12 @@ public class GameMenu extends JPanel implements MouseListener, MouseMotionListen
         } else if (clickedPlanet == null && newClickedPlanet != null) {
             // First click on a planet - select it
             clickedPlanet = newClickedPlanet;
+            game.getSoundManager().play(Sound.PLANET_SELECT);
         } else if (clickedPlanet != null && newClickedPlanet != null && clickedPlanet != newClickedPlanet) {
             // Second click on a different planet - attempt targeting
             if (clickedPlanet.getOperator() instanceof Player) {
                 clickedPlanet.attemptTargeting(newClickedPlanet);
+                game.getSoundManager().play(Sound.SHIP_DEPLOY);
                 // Keep the clicked planet visible for 1 second to show targeting arrows
                 clickedPlanetClearTime = System.currentTimeMillis() + 1000;
             } else {
@@ -474,8 +483,7 @@ public class GameMenu extends JPanel implements MouseListener, MouseMotionListen
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        if (isDragging && selectedPlanet != null
-                && selectedPlanet.getOperator() instanceof Player) {
+        if (isDragging && selectedPlanet != null && selectedPlanet.getOperator() instanceof Player) {
             Planet targetPlanet = findPlanetAt(e.getX(), e.getY());
             if (targetPlanet != null && targetPlanet != selectedPlanet) {
                 selectedPlanet.attemptTargeting(targetPlanet);
@@ -681,14 +689,12 @@ public class GameMenu extends JPanel implements MouseListener, MouseMotionListen
 
     private void drawDiamond(Graphics2D g, int centerX, int centerY, int size) {
         int halfSize = size / 2;
-        int[] xPoints = {
-                centerX, // top
+        int[] xPoints = { centerX, // top
                 centerX + halfSize, // right
                 centerX, // bottom
                 centerX - halfSize // left
         };
-        int[] yPoints = {
-                centerY - halfSize, // top
+        int[] yPoints = { centerY - halfSize, // top
                 centerY, // right
                 centerY + halfSize, // bottom
                 centerY // left
@@ -751,8 +757,7 @@ public class GameMenu extends JPanel implements MouseListener, MouseMotionListen
             int abilityX = startX;
             int abilityY = startY - (index * (diamondSize + spacing));
 
-            if (x >= abilityX && x <= abilityX + diamondSize &&
-                    y >= abilityY && y <= abilityY + diamondSize) {
+            if (x >= abilityX && x <= abilityX + diamondSize && y >= abilityY && y <= abilityY + diamondSize) {
                 return abilityType;
             }
 

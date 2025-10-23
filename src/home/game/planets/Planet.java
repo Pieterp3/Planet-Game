@@ -13,6 +13,7 @@ import home.game.operators.Bot;
 import home.game.operators.Operator;
 import home.game.operators.player.Player;
 import home.game.operators.player.PlayerData;
+import home.sounds.Sound;
 import home.game.operators.player.UpgradeType;
 
 public class Planet {
@@ -176,8 +177,7 @@ public class Planet {
             // Apply planet damage reduction for player-owned planets
             if (this.operator instanceof Player) {
                 PlayerData playerData = PlayerData.getInstance();
-                double damageReduction = playerData
-                        .getUpgradePercentage(UpgradeType.PLANET_DAMAGE_REDUCTION);
+                double damageReduction = playerData.getUpgradePercentage(UpgradeType.PLANET_DAMAGE_REDUCTION);
                 if (damage > 0) {
                     damage = (int) (damage * (1.0 - damageReduction / 100.0));
                 }
@@ -221,6 +221,12 @@ public class Planet {
             setMaxTargets();
             return;
         }
+
+        // Play planet damage sound if damage > 0 and game is available
+        if (damage > 0 && game != null) {
+            game.getSoundManager().play(Sound.PLANET_DAMAGE);
+        }
+
         this.health -= damage;
         setMaxTargets();
     }
@@ -470,8 +476,8 @@ public class Planet {
     /**
      * Sets orbital parameters for this planet
      */
-    public void setOrbitalParameters(double semiMajorAxis, double semiMinorAxis,
-            double initialAngle, double orbitalSpeed, boolean isVerticalOrbit) {
+    public void setOrbitalParameters(double semiMajorAxis, double semiMinorAxis, double initialAngle,
+            double orbitalSpeed, boolean isVerticalOrbit) {
         this.semiMajorAxis = semiMajorAxis;
         this.semiMinorAxis = semiMinorAxis;
         this.orbitalAngle = initialAngle;

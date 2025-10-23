@@ -25,6 +25,7 @@ import home.frame.GameFrame;
 import home.frame.SpaceButton;
 import home.frame.background.BackgroundArtist;
 import home.game.GameConstants;
+import home.game.VisualSettings;
 import home.game.abilities.AbilityType;
 import home.game.operators.player.PlayerData;
 import home.game.operators.player.UpgradeType;
@@ -276,8 +277,8 @@ public class ShopMenu extends JPanel {
         // Current level and effect
         int currentLevel = playerData.getUpgradeLevel(upgradeType);
         double currentValue = playerData.getUpgradeValue(upgradeType);
-        JLabel levelLabel = new JLabel(String.format("Level %d (+%.1f%s)",
-                currentLevel, currentValue, upgradeType.getUnit()));
+        JLabel levelLabel = new JLabel(
+                String.format("Level %d (+%.1f%s)", currentLevel, currentValue, upgradeType.getUnit()));
         levelLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         levelLabel.setForeground(new Color(200, 200, 200));
         gbc.gridy = 1;
@@ -285,8 +286,7 @@ public class ShopMenu extends JPanel {
 
         // Next level preview
         double nextValue = upgradeType.calculateValue(currentLevel + 1);
-        JLabel nextLabel = new JLabel(String.format("Next: +%.1f%s",
-                nextValue, upgradeType.getUnit()));
+        JLabel nextLabel = new JLabel(String.format("Next: +%.1f%s", nextValue, upgradeType.getUnit()));
         nextLabel.setFont(new Font("Arial", Font.ITALIC, 12));
         nextLabel.setForeground(new Color(150, 200, 150));
         gbc.gridy = 2;
@@ -299,8 +299,7 @@ public class ShopMenu extends JPanel {
         if (cost == -1) {
             // Max level reached
             buyButton = new SpaceButton("MAX LEVEL");
-            buyButton.setColors(new Color(100, 100, 100, 200),
-                    new Color(100, 100, 100, 200),
+            buyButton.setColors(new Color(100, 100, 100, 200), new Color(100, 100, 100, 200),
                     new Color(100, 100, 100, 200));
             buyButton.setEnabled(false);
         } else {
@@ -326,17 +325,16 @@ public class ShopMenu extends JPanel {
             };
             boolean canAfford = playerData.getCoins() >= cost;
             if (canAfford) {
-                buyButton.setColors(new Color(50, 150, 50, 200),
-                        new Color(70, 180, 70, 220),
+                buyButton.setColors(new Color(50, 150, 50, 200), new Color(70, 180, 70, 220),
                         new Color(30, 120, 30, 240));
             } else {
-                buyButton.setColors(new Color(150, 50, 50, 200),
-                        new Color(150, 50, 50, 200),
+                buyButton.setColors(new Color(150, 50, 50, 200), new Color(150, 50, 50, 200),
                         new Color(150, 50, 50, 200));
                 buyButton.setEnabled(false);
             }
 
-            buyButton.addActionListener(new UpgradeButtonListener(upgradeType, playerData, this));
+            buyButton.addActionListener(
+                    new UpgradeButtonListener(upgradeType, playerData, this, VisualSettings.getGlobalSoundManager()));
         }
 
         buyButton.setPreferredSize(new Dimension(120, 35));
@@ -454,8 +452,7 @@ public class ShopMenu extends JPanel {
         if (cost == -1) {
             // Max level reached
             buyButton = new SpaceButton("MAX LEVEL");
-            buyButton.setColors(new Color(100, 100, 100, 200),
-                    new Color(100, 100, 100, 200),
+            buyButton.setColors(new Color(100, 100, 100, 200), new Color(100, 100, 100, 200),
                     new Color(100, 100, 100, 200));
             buyButton.setEnabled(false);
         } else {
@@ -482,12 +479,10 @@ public class ShopMenu extends JPanel {
 
             boolean canAfford = playerData.getCoins() >= cost;
             if (canAfford) {
-                buyButton.setColors(new Color(50, 150, 50, 200),
-                        new Color(70, 180, 70, 220),
+                buyButton.setColors(new Color(50, 150, 50, 200), new Color(70, 180, 70, 220),
                         new Color(30, 120, 30, 240));
             } else {
-                buyButton.setColors(new Color(150, 50, 50, 200),
-                        new Color(150, 50, 50, 200),
+                buyButton.setColors(new Color(150, 50, 50, 200), new Color(150, 50, 50, 200),
                         new Color(150, 50, 50, 200));
                 buyButton.setEnabled(false);
             }
@@ -513,16 +508,12 @@ public class ShopMenu extends JPanel {
 
         // Donation button
         SpaceButton donateButton = new SpaceButton("DONATE GOLD");
-        donateButton.setColors(new Color(255, 215, 0, 200),
-                new Color(255, 235, 50, 220),
-                new Color(200, 165, 0, 240));
+        donateButton.setColors(new Color(255, 215, 0, 200), new Color(255, 235, 50, 220), new Color(200, 165, 0, 240));
         donateButton.setPreferredSize(new Dimension(200, 45));
         donateButton.addActionListener(e -> showDonationDialog());
 
         SpaceButton backButton = new SpaceButton("BACK TO MENU");
-        backButton.setColors(new Color(150, 100, 50, 200),
-                new Color(180, 130, 70, 220),
-                new Color(120, 80, 30, 240));
+        backButton.setColors(new Color(150, 100, 50, 200), new Color(180, 130, 70, 220), new Color(120, 80, 30, 240));
         backButton.setPreferredSize(new Dimension(200, 45));
         backButton.addActionListener(e -> {
             frame.remove(this);

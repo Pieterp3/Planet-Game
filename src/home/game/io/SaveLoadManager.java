@@ -24,13 +24,12 @@ import home.game.operators.Difficulty;
 import home.game.operators.player.UpgradeType;
 
 /**
- * Centralized save/load manager for all game data persistence.
- * All files are stored in the cache directory: {user.home}/SpaceGameCache/
- * Handles four different save files:
- * 1. challenge_data.dat - Challenge progress and statistics
- * 2. game_constants.properties - Game configuration settings
- * 3. player_data.dat - Player progression and upgrades
- * 4. visual_settings.dat - Display preferences
+ * Centralized save/load manager for all game data persistence. All files are
+ * stored in the cache directory: {user.home}/SpaceGameCache/ Handles four
+ * different save files: 1. challenge_data.dat - Challenge progress and
+ * statistics 2. game_constants.properties - Game configuration settings 3.
+ * player_data.dat - Player progression and upgrades 4. visual_settings.dat -
+ * Display preferences
  */
 public class SaveLoadManager {
 
@@ -78,11 +77,8 @@ public class SaveLoadManager {
      * Save challenge data including progress, completion status, and career
      * statistics
      */
-    public void saveChallengeData(Map<String, Challenge> challenges,
-            int totalPlanetsCaptured,
-            int totalAbilitiesUsed,
-            int totalGoldDonated,
-            Map<AbilityType, Integer> specificAbilityUsage) {
+    public void saveChallengeData(Map<String, Challenge> challenges, int totalPlanetsCaptured, int totalAbilitiesUsed,
+            int totalGoldDonated, Map<AbilityType, Integer> specificAbilityUsage) {
         try (ObjectOutputStream oos = new ObjectOutputStream(
                 new FileOutputStream(getCacheFilePath(CHALLENGE_DATA_FILE)))) {
             // Save challenge progress and completion status
@@ -108,8 +104,8 @@ public class SaveLoadManager {
     }
 
     /**
-     * Load challenge data and apply it to the challenges map
-     * Returns a ChallengeData object containing all loaded data
+     * Load challenge data and apply it to the challenges map Returns a
+     * ChallengeData object containing all loaded data
      */
     @SuppressWarnings("unchecked")
     public ChallengeData loadChallengeData(Map<String, Challenge> challenges) {
@@ -192,15 +188,13 @@ public class SaveLoadManager {
                 try (FileInputStream fis = new FileInputStream(getCacheFilePath(GAME_CONSTANTS_FILE))) {
                     props.load(fis);
                 }
-                boolean restoreDefaults = Boolean
-                        .parseBoolean(props.getProperty("RESTORE_DEFAULTS", "false"));
+                boolean restoreDefaults = Boolean.parseBoolean(props.getProperty("RESTORE_DEFAULTS", "false"));
 
                 // Use reflection to set field values
                 Field[] fields = GameConstants.class.getDeclaredFields();
                 for (Field field : fields) {
-                    if (Modifier.isStatic(field.getModifiers()) &&
-                            !Modifier.isFinal(field.getModifiers()) &&
-                            !field.getName().equals("CONFIG_FILE")) {
+                    if (Modifier.isStatic(field.getModifiers()) && !Modifier.isFinal(field.getModifiers())
+                            && !field.getName().equals("CONFIG_FILE")) {
 
                         String value = props.getProperty(field.getName());
                         if (value != null) {
@@ -238,9 +232,8 @@ public class SaveLoadManager {
             sb.append("#Supported types: int, double, long, boolean, String");
 
             for (Field field : fields) {
-                if (Modifier.isStatic(field.getModifiers()) &&
-                        !Modifier.isFinal(field.getModifiers()) &&
-                        !field.getName().equals("CONFIG_FILE")) {
+                if (Modifier.isStatic(field.getModifiers()) && !Modifier.isFinal(field.getModifiers())
+                        && !field.getName().equals("CONFIG_FILE")) {
                     field.setAccessible(true);
                     Object value = field.get(null);
                     if (field.getName().contains("TITLE")) {
@@ -300,11 +293,8 @@ public class SaveLoadManager {
     /**
      * Save player data including coins, upgrades, abilities, and best times
      */
-    public void savePlayerData(int coins,
-            int achievementScore,
-            Map<Difficulty, Long> bestTimes,
-            Map<UpgradeType, Integer> upgradeLevels,
-            Map<AbilityType, Boolean> abilitiesUnlocked,
+    public void savePlayerData(int coins, int achievementScore, Map<Difficulty, Long> bestTimes,
+            Map<UpgradeType, Integer> upgradeLevels, Map<AbilityType, Boolean> abilitiesUnlocked,
             Map<AbilityType, Integer> abilityLevels) {
         try (ObjectOutputStream oos = new ObjectOutputStream(
                 new FileOutputStream(getCacheFilePath(PLAYER_DATA_FILE)))) {
@@ -388,14 +378,9 @@ public class SaveLoadManager {
     /**
      * Save visual settings to file
      */
-    public void saveVisualSettings(boolean displayConnectionLines,
-            boolean displayEffects,
-            boolean displayProjectiles,
-            boolean displayPlanetMoons,
-            boolean displayShips,
-            float connectionLineOpacity,
-            Color playerPlanetColor,
-            Map<Integer, AbilityType> keybindMap) {
+    public void saveVisualSettings(boolean displayConnectionLines, boolean displayEffects, boolean displayProjectiles,
+            boolean displayPlanetMoons, boolean displayShips, float connectionLineOpacity, Color playerPlanetColor,
+            Map<Integer, AbilityType> keybindMap, boolean soundEnabled, double masterVolume, boolean reverbEnabled) {
         try (ObjectOutputStream oos = new ObjectOutputStream(
                 new FileOutputStream(getCacheFilePath(VISUAL_SETTINGS_FILE)))) {
             oos.writeBoolean(displayConnectionLines);
@@ -406,6 +391,11 @@ public class SaveLoadManager {
             oos.writeFloat(connectionLineOpacity);
             oos.writeObject(playerPlanetColor);
             oos.writeObject(keybindMap);
+
+            // Sound settings
+            oos.writeBoolean(soundEnabled);
+            oos.writeDouble(masterVolume);
+            oos.writeBoolean(reverbEnabled);
 
             System.out.println("Visual settings saved successfully");
         } catch (IOException e) {
@@ -443,9 +433,22 @@ public class SaveLoadManager {
                 // If keybind loading fails, use null (will trigger default keybinds)
             }
 
+            // Load sound settings (backwards compatibility)
+            boolean soundEnabled = true;
+            double masterVolume = 0.7;
+            boolean reverbEnabled = false;
+            try {
+                soundEnabled = ois.readBoolean();
+                masterVolume = ois.readDouble();
+                reverbEnabled = ois.readBoolean();
+            } catch (Exception soundEx) {
+                // If sound loading fails, use defaults
+            }
+
             System.out.println("Visual settings loaded successfully");
             return new VisualSettingsContainer(displayConnectionLines, displayEffects, displayProjectiles,
-                    displayPlanetMoons, displayShips, connectionLineOpacity, playerPlanetColor, keybindMap);
+                    displayPlanetMoons, displayShips, connectionLineOpacity, playerPlanetColor, keybindMap,
+                    soundEnabled, masterVolume, reverbEnabled);
 
         } catch (IOException e) {
             // Use default settings if file doesn't exist or can't be read

@@ -60,6 +60,12 @@ public class SettingsMenu extends JPanel {
     private JLabel opacityValueLabel;
     private JComboBox<String> planetColorComboBox;
 
+    // Sound Settings Components
+    private JCheckBox soundEnabledCheckBox;
+    private JSlider volumeSlider;
+    private JLabel volumeValueLabel;
+    private JCheckBox reverbCheckBox;
+
     public SettingsMenu(GameFrame frame) {
         this.frame = frame;
         this.backgroundArtist = new BackgroundArtist();
@@ -136,6 +142,10 @@ public class SettingsMenu extends JPanel {
         // Keybinds Tab
         JPanel keybindsPanel = createKeybindsPanel();
         tabbedPane.addTab("Keybinds", keybindsPanel);
+
+        // Sound Settings Tab
+        JPanel soundPanel = createSoundSettingsPanel();
+        tabbedPane.addTab("Sound", soundPanel);
 
         gbc.gridy = 1;
         gbc.fill = GridBagConstraints.BOTH;
@@ -291,6 +301,85 @@ public class SettingsMenu extends JPanel {
         return panel;
     }
 
+    private JPanel createSoundSettingsPanel() {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 20, 8, 20);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // Sound Enabled Toggle
+        soundEnabledCheckBox = createStyledCheckBox("Enable Sound", settings.isSoundEnabled());
+        soundEnabledCheckBox.addActionListener(e -> {
+            boolean enabled = soundEnabledCheckBox.isSelected();
+            settings.setSoundEnabled(enabled);
+
+            // Enable/disable other sound controls
+            volumeSlider.setEnabled(enabled);
+            reverbCheckBox.setEnabled(enabled);
+        });
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        panel.add(soundEnabledCheckBox, gbc);
+
+        // Master Volume
+        JLabel volumeLabel = createStyledLabel("Master Volume:");
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        panel.add(volumeLabel, gbc);
+
+        JPanel volumePanel = createVolumePanel();
+        gbc.gridx = 1;
+        panel.add(volumePanel, gbc);
+
+        // Reverb Toggle
+        reverbCheckBox = createStyledCheckBox("Enable Reverb", settings.isReverbEnabled());
+        reverbCheckBox.addActionListener(e -> settings.setReverbEnabled(reverbCheckBox.isSelected()));
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        panel.add(reverbCheckBox, gbc);
+
+        // Test Sound button
+        SpaceButton testSoundButton = new SpaceButton("TEST SOUND");
+        testSoundButton.setColors(new Color(100, 150, 50, 200), new Color(130, 180, 70, 220),
+                new Color(80, 120, 30, 240));
+        testSoundButton.setPreferredSize(new Dimension(140, 40));
+        testSoundButton.addActionListener(e -> {
+            if (VisualSettings.getGlobalSoundManager() != null) {
+                VisualSettings.getGlobalSoundManager().play(home.sounds.Sound.SUCCESS_CHIME);
+            }
+        });
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(15, 20, 8, 20);
+        panel.add(testSoundButton, gbc);
+
+        // Reset Sound Settings button
+        SpaceButton resetSoundButton = new SpaceButton("RESET SOUND DEFAULTS");
+        resetSoundButton.setColors(new Color(150, 100, 50, 200), new Color(180, 130, 70, 220),
+                new Color(120, 80, 30, 240));
+        resetSoundButton.setPreferredSize(new Dimension(220, 44));
+        resetSoundButton.addActionListener(e -> {
+            resetSoundSettingsToDefaults();
+        });
+        gbc.gridy = 4;
+        gbc.insets = new Insets(20, 20, 8, 20);
+        panel.add(resetSoundButton, gbc);
+
+        // Set initial enable state
+        boolean soundEnabled = settings.isSoundEnabled();
+        volumeSlider.setEnabled(soundEnabled);
+        reverbCheckBox.setEnabled(soundEnabled);
+
+        panel.setPreferredSize(new Dimension(600, 350));
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 350));
+
+        return panel;
+    }
+
     private void populateKeybinds(JPanel container) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 15, 8, 15);
@@ -344,9 +433,7 @@ public class SettingsMenu extends JPanel {
             gbc.gridx = 1;
             SpaceButton keybindButton = new SpaceButton(keyText);
             keybindButton.setPreferredSize(new Dimension(100, 38));
-            keybindButton.setColors(
-                    new Color(50, 70, 120, 200),
-                    new Color(70, 90, 140, 220),
+            keybindButton.setColors(new Color(50, 70, 120, 200), new Color(70, 90, 140, 220),
                     new Color(30, 50, 100, 240));
 
             // Set up keybind change listener
@@ -358,9 +445,7 @@ public class SettingsMenu extends JPanel {
             gbc.gridx = 2;
             SpaceButton clearButton = new SpaceButton("Clear");
             clearButton.setPreferredSize(new Dimension(90, 36));
-            clearButton.setColors(
-                    new Color(120, 50, 50, 200),
-                    new Color(140, 70, 70, 220),
+            clearButton.setColors(new Color(120, 50, 50, 200), new Color(140, 70, 70, 220),
                     new Color(100, 30, 30, 240));
             clearButton.addActionListener(e -> {
                 settings.clearKeybind(ability);
@@ -420,10 +505,8 @@ public class SettingsMenu extends JPanel {
     }
 
     private boolean isValidKeybindKey(int keyCode) {
-        return keyCode >= KeyEvent.VK_1 && keyCode <= KeyEvent.VK_9 ||
-                keyCode == KeyEvent.VK_0 ||
-                keyCode == KeyEvent.VK_MINUS ||
-                keyCode == KeyEvent.VK_EQUALS;
+        return keyCode >= KeyEvent.VK_1 && keyCode <= KeyEvent.VK_9 || keyCode == KeyEvent.VK_0
+                || keyCode == KeyEvent.VK_MINUS || keyCode == KeyEvent.VK_EQUALS;
     }
 
     private void resetKeybindsToDefaults() {
@@ -435,11 +518,8 @@ public class SettingsMenu extends JPanel {
         // Set default keybinds for unlocked abilities
         PlayerData playerData = PlayerData.getInstance();
         AbilityType[] abilities = AbilityType.values();
-        int[] defaultKeys = {
-                KeyEvent.VK_1, KeyEvent.VK_2, KeyEvent.VK_3, KeyEvent.VK_4, KeyEvent.VK_5,
-                KeyEvent.VK_6, KeyEvent.VK_7, KeyEvent.VK_8, KeyEvent.VK_9, KeyEvent.VK_0,
-                KeyEvent.VK_MINUS, KeyEvent.VK_EQUALS
-        };
+        int[] defaultKeys = { KeyEvent.VK_1, KeyEvent.VK_2, KeyEvent.VK_3, KeyEvent.VK_4, KeyEvent.VK_5, KeyEvent.VK_6,
+                KeyEvent.VK_7, KeyEvent.VK_8, KeyEvent.VK_9, KeyEvent.VK_0, KeyEvent.VK_MINUS, KeyEvent.VK_EQUALS };
 
         int keyIndex = 0;
         for (AbilityType ability : abilities) {
@@ -471,6 +551,29 @@ public class SettingsMenu extends JPanel {
         opacityPanel.add(opacitySlider);
         opacityPanel.add(opacityValueLabel);
         return opacityPanel;
+    }
+
+    private JPanel createVolumePanel() {
+        JPanel volumePanel = new JPanel();
+        volumePanel.setOpaque(false);
+        volumePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+
+        volumeSlider = new JSlider(0, 100, (int) (settings.getMasterVolume() * 100));
+        volumeSlider.setOpaque(false);
+        volumeSlider.setForeground(Color.WHITE);
+        volumeSlider.setPreferredSize(new Dimension(150, 25));
+        volumeSlider.addChangeListener(e -> {
+            double value = volumeSlider.getValue() / 100.0;
+            settings.setMasterVolume(value);
+            volumeValueLabel.setText(String.format("%.0f%%", value * 100));
+        });
+
+        volumeValueLabel = createStyledLabel(String.format("%.0f%%", settings.getMasterVolume() * 100));
+        volumeValueLabel.setPreferredSize(new Dimension(40, 20));
+
+        volumePanel.add(volumeSlider);
+        volumePanel.add(volumeValueLabel);
+        return volumePanel;
     }
 
     private JPanel createButtonsPanel() {
@@ -533,8 +636,8 @@ public class SettingsMenu extends JPanel {
         // Create custom renderer to show color previews
         comboBox.setRenderer(new DefaultListCellRenderer() {
             @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                    boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
+                    boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
                 if (index >= 0 && index < VisualSettings.AVAILABLE_PLANET_COLORS.length) {
@@ -647,6 +750,26 @@ public class SettingsMenu extends JPanel {
         planetMoonsCheckBox.setSelected(settings.isDisplayPlanetMoons());
         shipsCheckBox.setSelected(settings.isDisplayShips());
         planetColorComboBox.setSelectedIndex(settings.getPlayerPlanetColorIndex());
+
+        repaint();
+    }
+
+    private void resetSoundSettingsToDefaults() {
+        // Reset all sound settings to defaults
+        settings.setSoundEnabled(true);
+        settings.setMasterVolume(0.7);
+        settings.setReverbEnabled(false);
+
+        // Update UI components
+        soundEnabledCheckBox.setSelected(settings.isSoundEnabled());
+        volumeSlider.setValue((int) (settings.getMasterVolume() * 100));
+        volumeValueLabel.setText(String.format("%.0f%%", settings.getMasterVolume() * 100));
+        reverbCheckBox.setSelected(settings.isReverbEnabled());
+
+        // Update control states
+        boolean soundEnabled = settings.isSoundEnabled();
+        volumeSlider.setEnabled(soundEnabled);
+        reverbCheckBox.setEnabled(soundEnabled);
 
         repaint();
     }

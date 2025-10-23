@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
+import home.game.VisualSettings;
+import home.sounds.Sound;
 
 public class SpaceButton extends JButton {
 
@@ -55,6 +57,12 @@ public class SpaceButton extends JButton {
             public void mouseEntered(MouseEvent e) {
                 isHovered = true;
                 setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+                // Play hover sound
+                if (VisualSettings.getInstance().getSoundManager() != null) {
+                    VisualSettings.getInstance().getSoundManager().play(Sound.HOVER_MENU_BUTTON);
+                }
+
                 repaint();
             }
 
@@ -68,6 +76,12 @@ public class SpaceButton extends JButton {
             @Override
             public void mousePressed(MouseEvent e) {
                 isPressed = true;
+
+                // Play click sound
+                if (VisualSettings.getInstance().getSoundManager() != null) {
+                    VisualSettings.getInstance().getSoundManager().play(Sound.CLICK_MENU_BUTTON);
+                }
+
                 repaint();
             }
 
@@ -101,8 +115,7 @@ public class SpaceButton extends JButton {
 
         // Draw button background with rounded corners
         g2d.setColor(currentColor);
-        RoundRectangle2D roundedRect = new RoundRectangle2D.Float(
-                2, 2, getWidth() - 4, getHeight() - 4, 15, 15);
+        RoundRectangle2D roundedRect = new RoundRectangle2D.Float(2, 2, getWidth() - 4, getHeight() - 4, 15, 15);
         g2d.fill(roundedRect);
 
         // Draw border
